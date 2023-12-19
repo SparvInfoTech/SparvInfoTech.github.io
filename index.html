@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/3.5.0/remixicon.css">
 
@@ -197,8 +198,8 @@
         </div>
         <!-- End | Products-->
 
-        <div class="tab-pane d-flex flex-wrap justify-content-center align-items-center" id="Services"
-            role="tabpanel" aria-labelledby="services-tab">
+        <div class="tab-pane d-flex flex-wrap justify-content-center align-items-center" id="Services" role="tabpanel"
+            aria-labelledby="services-tab">
             <div class="container text-center mb-4">
                 <h1 class="p-bold">Our Services</h1>
                 <p class="mb-3">We offer a range of app development services to help bring your business to the next
@@ -257,12 +258,18 @@
                 </div>
             </div>
             <div class="container m-auto p-auto">
-                <label for="contact-email-id" class="p-bold">Email</label><br>
+                <label for="career-email-id" class="p-bold">Email</label><br>
                 <input type="text" id="career-email-id" placeholder="Enter Email-id"><br>
-                <label for="contact-full-name" class="p-bold">Full Name</label><br>
+                <span class="error-career d-none" id="error-career-email-id"
+                    style="color: red; font-size: 15px;">Invalid email-id</span><br>
+                <label for="career-full-name" class="p-bold">Full Name</label><br>
                 <input type="text" id="career-full-name" placeholder="Enter Full name"><br>
-                <label for="contact-mobile-no" class="p-bold">Mobile No</label><br>
+                <span class="error-career d-none" id="error-career-full-name"
+                    style="color: red; font-size: 15px;">Invalid name</span><br>
+                <label for="career-mobile-no" class="p-bold">Mobile No</label><br>
                 <input type="text" id="career-mobile-no" placeholder="Enter Mobile number"><br>
+                <span class="error-career d-none" id="error-career-mobile-no"
+                    style="color: red; font-size: 15px;">Invalid mobile no</span><br>
                 <div class="text-center align-items-center m-3">
                     <button type="button" onclick="InternRegister()" class="btn btn-dark btn-rounded">Click here to
                         register</button>
@@ -298,10 +305,16 @@
             <div class="container m-auto p-auto">
                 <label for="contact-email-id" class="p-bold">Email</label><br>
                 <input type="text" id="contact-email-id" placeholder="Enter Email-id"><br>
+                <span class="error-contact d-none" id="error-contact-email-id"
+                    style="color: red; font-size: 15px;">Invalid email-id</span><br>
                 <label for="contact-full-name" class="p-bold">Full Name</label><br>
                 <input type="text" id="contact-full-name" placeholder="Enter Full name"><br>
+                <span class="error-contact d-none" id="error-contact-full-name"
+                    style="color: red; font-size: 15px;">Invalid full name</span><br>
                 <label for="contact-mobile-no" class="p-bold">Mobile No</label><br>
                 <input type="text" id="contact-mobile-no" placeholder="Enter Mobile number"><br>
+                <span class="error-contact d-none" id="error-contact-mobile-no"
+                    style="color: red; font-size: 15px;">Invalid mobile no</span><br>
                 <div class="text-center align-items-center">
                     <button type="button" onclick="ContactSubmit()" class="btn btn-dark btn-rounded">Click here to
                         submit</button>
@@ -331,6 +344,7 @@
 </body>
 
 <script src="js/main.js"></script>
+<script src="https://www.gstatic.com/firebasejs/3.7.4/firebase.js"></script>
 <script>
     // function NavtoPage(tabItem) {
     //     debugger
@@ -342,13 +356,88 @@
     //     navMenu.classList.remove('show-menu')
     // }
 
+    // var apiUrl = 'https://pokeapi.co/api/v2/pokemon/ditto/';
+    // fetch(apiUrl).then(response => {
+    //     return response.json();
+    // }).then(data => {
+    //     // Work with JSON data here
+    //     console.log(data);
+    // }).catch(err => {
+    //     // Do something for an error here
+    // });
+
+    let firebaseConfig = {
+        apiKey: "AIzaSyC9MFqsg49VmES6FNqtPfnihpNPKRl3d7U",
+        authDomain: "sparv-db.firebaseapp.com",
+        databaseURL: "https://sparv-db-default-rtdb.firebaseio.com/",
+        projectId: "sparv-db",
+        storageBucket: "sparv-db.appspot.com",
+        messagingSenderId: "469315414058",
+        appId: "1:469315414058:web:dcf083f0384c6bd3673b53"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+
+    let internRef = firebase.database().ref('Intern-Data');
+    let contactRef = firebase.database().ref('Contact-Data');
+
     function InternRegister() {
-        alert("Our team will check and send you the offer letter for internship. Thank you!");
+        debugger
+
+        if ($('#career-email-id').val() != ''
+            && $('#career-full-name').val() != ''
+            && $('#career-mobile-no').val() != '') {
+            $('.error-career').addClass('d-none');
+            let newInternRef = internRef.push();
+            newInternRef.set({
+                name: $('#career-full-name').val(),
+                email: $('#career-email-id').val(),
+                mobile: $('#career-mobile-no').val()
+            });
+            alert("Our team will check and send you the offer letter for internship. Thank you!");
+        }
+        else {
+            $('.error-career').addClass('d-none');
+            if ($('#career-email-id').val() == '') {
+                $('#error-career-email-id').removeClass('d-none');
+            }
+            if ($('#career-full-name').val() == '') {
+                $('#error-career-full-name').removeClass('d-none');
+            }
+            if ($('#career-mobile-no').val() == '') {
+                $('#error-career-mobile-no').removeClass('d-none');
+            }
+        }
     }
 
-    function ContactSubmit(){
-        alert("Our Sparn Infoteh team will get back to you. Thank you!");
+    function ContactSubmit() {
+        debugger
+        if ($('#contact-email-id').val() != ''
+            && $('#contact-full-name').val() != ''
+            && $('#contact-mobile-no').val() != '') {
+            $('.error-contact').addClass('d-none');
+            let newContactRef = contactRef.push();
+            newContactRef.set({
+                name: $('#contact-full-name').val(),
+                email: $('#contact-email-id').val(),
+                mobile: $('#contact-mobile-no').val()
+            });
+            alert("Our Sparn Infoteh team will get back to you. Thank you!");
+        }
+        else {
+            $('.error-contact').addClass('d-none');
+            if ($('#contact-email-id').val() == '') {
+                $('#error-contact-email-id').removeClass('d-none');
+            }
+            if ($('#contact-full-name').val() == '') {
+                $('#error-contact-full-name').removeClass('d-none');
+            }
+            if ($('#contact-mobile-no').val() == '') {
+                $('#error-contact-mobile-no').removeClass('d-none');
+            }
+        }
     }
+
 </script>
 
 </html>
