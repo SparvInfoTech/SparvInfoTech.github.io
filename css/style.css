@@ -230,7 +230,7 @@ input[type=text]:focus, input[type=password]:focus {
 }
 
 .about-card {
-  max-width: 50%;
+  max-width: 70%;
   margin: 2px;
   border-radius: 8px;
   overflow: hidden;
