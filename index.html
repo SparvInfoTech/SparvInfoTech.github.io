@@ -17,6 +17,7 @@
         crossorigin="anonymous"></script>
 
     <title>Home | Sparv Infotech</title>
+    <link rel="icon" type="image/x-icon" href="/img/sparv-black-icon.png">
 </head>
 
 <body>
@@ -443,6 +444,14 @@
 <script src="js/main.js"></script>
 <script src="https://www.gstatic.com/firebasejs/3.7.4/firebase.js"></script>
 <script>
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const to = urlParams.get('to');
+    
+    if(to == "intern-register"){
+        $('#Careers')[0].scrollIntoView(true);
+        CarrersRegister('Intern');
+    }
 
     function CarrersRegister(employmentType) {
         if (employmentType == "Intern") {
