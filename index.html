@@ -82,7 +82,7 @@
     </nav> -->
 
     <!-- Start | Home -->
-    <div>
+    <div class="home">
         <div class="tab-pane mb-4 pb-4" id="Home" role="tabpanel" aria-labelledby="Home-tab">
             <header class="header-img text-black text-center">
                 <div class="mb-5 pb-5">
@@ -421,6 +421,66 @@
         </div>
     </div>
 
+    <div class="user d-none">
+        <div class="tab-pane d-flex flex-wrap justify-content-center align-items-center" id="UserRegister"
+            role="tabpanel" aria-labelledby="contact-tab">
+            <div class="container text-center m-3 p-3">
+                <div class=" mx-auto">
+                    <h1 class="p-bold">User</h1>
+                </div>
+            </div>
+            <div class="container m-auto p-auto" id="UserRegister-form">
+                <div class="mx-auto">
+                    <h3 class="p-bold text-center d-none" id="RegisterInternUsertxt">Intern User - Register</h3>
+                </div>
+                <div>
+                    <label for="intern-user-email-id" class="p-bold">Email</label><br>
+                    <input type="text" id="intern-user-email-id" placeholder="Enter Email-id" disabled><br>
+                    <span class="error-intern-user d-none" id="error-intern-user-email-id"
+                        style="color: red; font-size: 15px;">Invalid email-id</span><br>
+                </div>
+                <div>
+                    <label for="intern-user-full-name" class="p-bold">Full Name</label><br>
+                    <input type="text" id="intern-user-full-name" placeholder="Enter Full name" disabled><br>
+                    <span class="error-intern-user d-none" id="error-intern-user-full-name"
+                        style="color: red; font-size: 15px;">Invalid name</span><br>
+                </div>
+                <div>
+                    <label for="intern-user-mobile-no" class="p-bold">Mobile No</label><br>
+                    <input type="text" id="intern-user-mobile-no" placeholder="Enter Mobile number" disabled><br>
+                    <span class="error-intern-user d-none" id="error-intern-user-mobile-no"
+                        style="color: red; font-size: 15px;">Invalid mobile no</span><br>
+                </div>
+                <div>
+                    <label for="intern-user-college" class="p-bold">College</label><br>
+                    <input type="text" id="intern-user-college" placeholder="Enter College name"><br>
+                    <span class="error-intern-user d-none" id="error-intern-user-college"
+                        style="color: red; font-size: 15px;">Invalid college</span><br>
+                </div>
+                <div class="intern-user-degree">
+                    <label class="intern-user-degree p-bold" for="intern-user-degree">
+                        Degree and Course</label><br>
+                    <input type="text" class="intern-user-degree" id="intern-user-degree"
+                        placeholder="Enter degree and course (Ex: BE - CSE)"><br>
+                    <span class="error-intern-user d-none" id="error-intern-user-degree"
+                        style="color: red; font-size: 15px;">Please provide your degree and course</span><br>
+                </div>
+                <div>
+                    <label for="intern-user-preferred" class="p-bold">Preferred technology</label><br>
+                    <input type="text" id="intern-user-preferred"
+                        placeholder="Enter preferred technology (Ex: AI, Web Development)"><br>
+                    <span class="error-intern-user d-none" id="error-intern-user-preferred"
+                        style="color: red; font-size: 15px;">Please provide your preferred technology</span><br>
+                </div>
+                <input type="hidden" id="internRecord" />
+                <div class="text-center justify-content-center m-3">
+                    <button type="button" onclick="InternUserSubmit()" class="btn btn-dark btn-rounded">Click here to
+                        register</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <footer class="d-flex flex-wrap justify-content-center align-items-center py-3 p-5 my-4 border-top">
         <div class="col-md-3 align-items-center justify-content-center text-center mb-3 mb-md-0 me-md-auto">
             <h6 class="p-bold">Location</h6>
@@ -444,11 +504,12 @@
 <script src="js/main.js"></script>
 <script src="https://www.gstatic.com/firebasejs/3.7.4/firebase.js"></script>
 <script>
-
     const urlParams = new URLSearchParams(window.location.search);
     const to = urlParams.get('to');
-    
-    if(to == "intern-register"){
+    const user = urlParams.get('u');
+    var exist = false;
+
+    if (to == "intern-register") {
         $('#Careers')[0].scrollIntoView(true);
         CarrersRegister('Intern');
     }
@@ -509,10 +570,9 @@
 
     let internRef = firebase.database().ref('Intern-Data');
     let contactRef = firebase.database().ref('Contact-Data');
+    let registeredUserRef = firebase.database().ref('User-Data');
 
     function CareerSubmit() {
-        debugger
-
         if ($('#career-email-id').val() != '' && $('#career-full-name').val() != ''
             && $('#career-mobile-no').val() != ''
             && ($('#empType').val() == "Intern" || $('#career-experiance').val() != "")) {
@@ -557,7 +617,6 @@
     }
 
     function ContactSubmit() {
-        debugger
         if ($('#contact-email-id').val() != ''
             && $('#contact-full-name').val() != ''
             && $('#contact-mobile-no').val() != '') {
@@ -589,6 +648,86 @@
         }
     }
 
+    if (user != null) {
+        loadUser(user);
+
+        registeredUserRef.once('value', function (snapshot) {
+            snapshot.forEach(function (childSnapshot) {
+                if (childSnapshot.val().internData == $('#internRecord').val()) {
+                    exist = true;
+                    alert("Sorry!, User have already registered");
+                    $('.user').addClass('d-none');
+                    $('.home').removeClass('d-none');
+                }
+            });
+        });
+    }
+
+    function loadUser(user) {
+        $('#internRecord').val(user);
+        $('.home').addClass('d-none');
+        $('.user').removeClass('d-none');
+
+        firebase.database().ref('/Intern-Data/' + user).once('value').then((snapshot) => {
+            if (snapshot.key == user) {
+                var childData = snapshot.val();
+                $('#intern-user-email-id').val(childData.email);
+                $('#intern-user-full-name').val(childData.name);
+                $('#intern-user-mobile-no').val(childData.mobile);
+            }
+            else {
+                $('.user').addClass('d-none');
+                $('.home').removeClass('d-none');
+            }
+        });
+
+    }
+
+    async function InternUserSubmit() {
+        if ($('#intern-user-college').val() != ''
+            && $('#intern-user-degree').val() != ''
+            && $('#intern-user-preferred').val() != '') {
+
+            if (!exist) {
+                let newRegisteredUserRef = registeredUserRef.push();
+                await newRegisteredUserRef.set({
+                    name: $('#intern-user-full-name').val(),
+                    email: $('#intern-user-email-id').val(),
+                    mobile: $('#intern-user-mobile-no').val(),
+                    college: $('#intern-user-college').val(),
+                    degree: $('#intern-user-degree').val(),
+                    internData: $('#internRecord').val()
+                });
+
+                $('#intern-user-full-name').val("");
+                $('#intern-user-email-id').val("");
+                $('#intern-user-mobile-no').val("");
+                $('#intern-user-college').val("")
+                $('#intern-user-degree').val("");
+
+                alert("Our team will check and send you the offer letter for internship. Thank you!");
+                $('.user').addClass('d-none');
+                $('.home').removeClass('d-none');
+            }
+            else {
+                alert("Sorry!, User have already registered");
+                $('.user').addClass('d-none');
+                $('.home').removeClass('d-none');
+            }
+        }
+        else {
+            $('.error-intern-user').addClass('d-none');
+            if ($('#intern-user-college').val() == '') {
+                $('#error-intern-user-college').removeClass('d-none');
+            }
+            if ($('#intern-user-degree').val() == '') {
+                $('#error-intern-user-degree').removeClass('d-none');
+            }
+            if ($('#intern-user-preferred').val() == '') {
+                $('#error-intern-user-preferred').removeClass('d-none');
+            }
+        }
+    }
 </script>
 
 </html>
